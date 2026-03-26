@@ -14,7 +14,7 @@ const DEFAULT_STORE = {
   whatsapp_display: "0333-2455770",
   location: "Karachi, Pakistan",
   timing: "9:AM to 11: PM",
-  juma: "Juma 2-4 baje band",
+  juma: "Holiday",
   delivery: "Karachi mein free delivery Rs.1500+ orders pe",
   warranty_original: "6 months",
   warranty_oem: "3 months",
