@@ -358,7 +358,7 @@ export default function App() {
   });
   const gData = await gRes.json();
   setMessages(p=>[...p,{role:"assistant",text:gData.choices?.[0]?.message?.content||"Maafi chahta hoon, dobara try karein."}]);
-}
+
     }catch{
       setMessages(p=>[...p,{role:"assistant",text:"Connection mein masla hua. WhatsApp karein! 📱"}]);
     }
