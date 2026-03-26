@@ -338,18 +338,27 @@ export default function App() {
     const updated=[...messages,{role:"user",text:ut}];
     setMessages(updated);setLoading(true);
     try{
-      
-         const GEMINI_KEY = "AIzaSyBlRWAlAJVVwGFqlHMqg92n1UOEYayjVxw";
-const gRes=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_KEY}`,{
-  method:"POST",headers:{"Content-Type":"application/json"},
-  body:JSON.stringify({
-    system_instruction:{parts:[{text:buildPrompt(products,store)}]},
-    contents:updated.map(m=>({role:m.role==="assistant"?"model":"user",parts:[{text:m.text}]})),
-    generationConfig:{maxOutputTokens:800}
-  }),
-});
-const gData=await gRes.json();
-setMessages(p=>[...p,{role:"assistant",text:gData.candidates?.[0]?.content?.parts?.[0]?.text||"Maafi chahta hoon, dobara try karein."}]);
+  const gRes = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": `Bearer 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`,
+      "HTTP-Referer": "https://alsyed-autoparts-chatbot.vercel.app",
+    },
+    body: JSON.stringify({
+      model: "meta-llama/llama-3.2-3b-instruct:free",
+      messages: [
+        {role:"system", content:buildPrompt(products,store)},
+        ...updated.map(m=>({
+          role:m.role==="assistant"?"assistant":"user",
+          content:m.text
+        }))
+      ],
+    }),
+  });
+  const gData = await gRes.json();
+  setMessages(p=>[...p,{role:"assistant",text:gData.choices?.[0]?.message?.content||"Maafi chahta hoon, dobara try karein."}]);
+}
     }catch{
       setMessages(p=>[...p,{role:"assistant",text:"Connection mein masla hua. WhatsApp karein! 📱"}]);
     }
