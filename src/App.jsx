@@ -13,7 +13,7 @@ const DEFAULT_STORE = {
   whatsapp: "923332455770",
   whatsapp_display: "0333-2455770",
   location: "Karachi, Pakistan",
-  timing: "Subah 9 baje se Raat 9 baje tak",
+  timing: "9:AM to 11: PM",
   juma: "Juma 2-4 baje band",
   delivery: "Karachi mein free delivery Rs.1500+ orders pe",
   warranty_original: "6 months",
