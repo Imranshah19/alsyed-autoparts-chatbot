@@ -17,7 +17,7 @@ const DEFAULT_STORE = {
   juma: "Holiday",
   delivery: "Karachi mein free delivery Rs.1500+ orders pe",
   warranty_original: "6 months",
-  warranty_oem: "3 months",
+  warranty_oem: "No",
 };
 
 const DEFAULT_PRODUCTS = [
