@@ -338,15 +338,18 @@ export default function App() {
     const updated=[...messages,{role:"user",text:ut}];
     setMessages(updated);setLoading(true);
     try{
-      const res=await fetch("https://api.anthropic.com/v1/messages",{
-        method:"POST",headers:{"Content-Type":"application/json"},
-        body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:1000,
-          system:buildPrompt(products,store),
-          messages:updated.map(m=>({role:m.role==="assistant"?"assistant":"user",content:m.text})),
-        }),
-      });
-      const data=await res.json();
-      setMessages(p=>[...p,{role:"assistant",text:data.content?.[0]?.text||"Maafi chahta hoon, dobara try karein."}]);
+      
+         const GEMINI_KEY = "AIzaSyBlRWAlAJVVwGFqlHMqg92n1UOEYayjVxw";
+const gRes=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_KEY}`,{
+  method:"POST",headers:{"Content-Type":"application/json"},
+  body:JSON.stringify({
+    system_instruction:{parts:[{text:buildPrompt(products,store)}]},
+    contents:updated.map(m=>({role:m.role==="assistant"?"model":"user",parts:[{text:m.text}]})),
+    generationConfig:{maxOutputTokens:800}
+  }),
+});
+const gData=await gRes.json();
+setMessages(p=>[...p,{role:"assistant",text:gData.candidates?.[0]?.content?.parts?.[0]?.text||"Maafi chahta hoon, dobara try karein."}]);
     }catch{
       setMessages(p=>[...p,{role:"assistant",text:"Connection mein masla hua. WhatsApp karein! 📱"}]);
     }
