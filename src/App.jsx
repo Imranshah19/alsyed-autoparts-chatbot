@@ -84,7 +84,7 @@ STYLE:
 • Sirf auto parts topic pe raho, short jawab do`;
 };
 
-const CATS = ["Toyota","Honda","Suzuki","Kia/Hyundai","Mazda T3500","Motorcycle","Engine Oil","Other"];
+const CATS = ["Toyota","Honda","Suzuki","Suzuki 2 Stock","Kia/Hyundai","Mazda T3500","Mazda T4100","Shezore","Master","Chamber","Motorcycle","Engine Oil","Other"];
 
 function Dots() {
   return (
