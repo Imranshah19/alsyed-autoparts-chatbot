@@ -358,7 +358,8 @@ export default function App() {
         }),
       });
       const data=await res.json();
-      const reply=data.content?.[0]?.text||"Maafi chahta hoon, dobara try karein.";
+      const reply=data.content?.[0]?.text
+        ||(data.error?.message ? `[Error: ${data.error.message}]` : "Maafi chahta hoon, dobara try karein.");
       setMessages(p=>[...p,{role:"assistant",text:reply}]);
     }catch{
       setMessages(p=>[...p,{role:"assistant",text:"Connection mein masla hua. WhatsApp karein! 📱"}]);
