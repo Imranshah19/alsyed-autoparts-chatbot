@@ -86,6 +86,8 @@ STYLE:
 
 const CATS = ["Toyota","Honda","Suzuki","Suzuki 2 Stock","Kia/Hyundai","Mazda T3500","Mazda T4100","Shezore","Master","Chamber","Motorcycle","Engine Oil","Gear Oil","ATF","Other"];
 
+const ADMIN_PASSWORD = "AlSyed@2024";
+
 function Dots() {
   return (
     <div style={{display:"flex",gap:4,padding:"2px 0"}}>
@@ -293,7 +295,11 @@ export default function App() {
     text:"Assalamu Alaikum! 👋\nMain Saim hoon — AlSyed Autoparts ka AI Assistant.\n\nCar, Truck ya Bike ke parts ke baare mein poochein!\n\n🚗 Toyota • Honda • Suzuki\n🚛 Mazda T3500\n🏍️ Motorcycle • Engine Oils\n\n24/7 haazir hoon! 🕐"}]);
   const [input,setInput]         = useState("");
   const [loading,setLoading]     = useState(false);
-  const [showAdmin,setShowAdmin] = useState(false);
+  const [showAdmin,setShowAdmin]   = useState(false);
+  const [adminAuthed,setAdminAuthed] = useState(false);
+  const [showPwModal,setShowPwModal] = useState(false);
+  const [pwInput,setPwInput]       = useState("");
+  const [pwError,setPwError]       = useState(false);
   const [showQuick,setShowQuick] = useState(true);
   const [installPrompt,setInstallPrompt] = useState(null);
   const [isIOS] = useState(()=>/iPhone|iPad|iPod/.test(navigator.userAgent));
@@ -338,27 +344,22 @@ export default function App() {
     const updated=[...messages,{role:"user",text:ut}];
     setMessages(updated);setLoading(true);
     try{
-  const gRes = await fetch("https://openrouter.ai/api/v1/chat/completions", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "Authorization": `Bearer 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`,
-      "HTTP-Referer": "https://alsyed-autoparts-chatbot.vercel.app",
-    },
-    body: JSON.stringify({
-      model: "meta-llama/llama-3.2-3b-instruct:free",
-      messages: [
-        {role:"system", content:buildPrompt(products,store)},
-        ...updated.map(m=>({
-          role:m.role==="assistant"?"assistant":"user",
-          content:m.text
-        }))
-      ],
-    }),
-  });
-  const gData = await gRes.json();
-  setMessages(p=>[...p,{role:"assistant",text:gData.choices?.[0]?.message?.content||"Maafi chahta hoon, dobara try karein."}]);
-
+      const res=await fetch("/api/chat",{
+        method:"POST",
+        headers:{"Content-Type":"application/json"},
+        body:JSON.stringify({
+          model:"claude-haiku-4-5-20251001",
+          max_tokens:1024,
+          system:buildPrompt(products,store),
+          messages:updated.slice(1).map(m=>({
+            role:m.role==="assistant"?"assistant":"user",
+            content:m.text
+          }))
+        }),
+      });
+      const data=await res.json();
+      const reply=data.content?.[0]?.text||"Maafi chahta hoon, dobara try karein.";
+      setMessages(p=>[...p,{role:"assistant",text:reply}]);
     }catch{
       setMessages(p=>[...p,{role:"assistant",text:"Connection mein masla hua. WhatsApp karein! 📱"}]);
     }
@@ -383,6 +384,49 @@ export default function App() {
       display:"flex",flexDirection:"column",fontFamily:"'Segoe UI',Tahoma,sans-serif",overflow:"hidden"}}>
 
       {showAdmin&&<Admin products={products} setProducts={setProducts} store={store} setStore={setStore} onClose={()=>setShowAdmin(false)}/>}
+
+      {showPwModal&&(
+        <div style={{position:"fixed",inset:0,zIndex:250,background:"rgba(0,0,0,0.93)",
+          display:"flex",alignItems:"center",justifyContent:"center",padding:16}}>
+          <div style={{width:"100%",maxWidth:340,background:"#0f0f18",borderRadius:16,
+            border:"1px solid #2a1a1a",padding:24}}>
+            <div style={{color:"#fff",fontWeight:900,fontSize:17,marginBottom:4}}>🔐 Admin Login</div>
+            <div style={{color:"#555",fontSize:12,marginBottom:20}}>Sirf owner ke liye • For Syed Imran Shah only</div>
+            <input
+              type="password"
+              placeholder="Password dalein..."
+              value={pwInput}
+              autoFocus
+              onChange={e=>{setPwInput(e.target.value);setPwError(false);}}
+              onKeyDown={e=>{
+                if(e.key==="Enter"){
+                  if(pwInput===ADMIN_PASSWORD){setAdminAuthed(true);setShowAdmin(true);setShowPwModal(false);setPwInput("");}
+                  else setPwError(true);
+                }
+              }}
+              style={{width:"100%",padding:"11px 13px",background:"#12121f",
+                border:`1px solid ${pwError?"#c1121f":"#2a2a3e"}`,borderRadius:9,
+                color:"#f0f0f0",fontSize:14,outline:"none",boxSizing:"border-box",
+                fontFamily:"inherit",marginBottom:pwError?6:14}}
+            />
+            {pwError&&<div style={{color:"#c1121f",fontSize:12,marginBottom:14}}>❌ Galat password — dobara try karein</div>}
+            <div style={{display:"flex",gap:8}}>
+              <button onClick={()=>{
+                if(pwInput===ADMIN_PASSWORD){setAdminAuthed(true);setShowAdmin(true);setShowPwModal(false);setPwInput("");}
+                else setPwError(true);
+              }} style={{flex:2,padding:"11px",background:"linear-gradient(135deg,#c1121f,#8b0000)",
+                border:"none",borderRadius:9,color:"#fff",fontWeight:800,cursor:"pointer",fontFamily:"inherit"}}>
+                Login
+              </button>
+              <button onClick={()=>{setShowPwModal(false);setPwInput("");setPwError(false);}}
+                style={{flex:1,padding:"11px",background:"transparent",border:"1px solid #333",
+                  borderRadius:9,color:"#666",cursor:"pointer",fontFamily:"inherit"}}>
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {iosGuide&&(
         <div style={{position:"fixed",inset:0,zIndex:300,background:"rgba(0,0,0,0.92)",
@@ -412,7 +456,7 @@ export default function App() {
         <div style={{display:"flex",gap:7}}>
           {(installPrompt||isIOS)&&(<button onClick={install} style={{background:"rgba(255,255,255,0.15)",border:"1px solid rgba(255,255,255,0.3)",borderRadius:9,padding:"7px 9px",cursor:"pointer",fontSize:15}}>📲</button>)}
           <button onClick={()=>openWA()} style={{background:"#25D366",border:"none",borderRadius:9,padding:"7px 9px",cursor:"pointer",fontSize:16}}>📱</button>
-          <button onClick={()=>setShowAdmin(true)} style={{background:"rgba(255,255,255,0.15)",border:"1px solid rgba(255,255,255,0.25)",borderRadius:9,padding:"7px 9px",cursor:"pointer",fontSize:15}}>⚙️</button>
+          <button onClick={()=>adminAuthed?setShowAdmin(true):setShowPwModal(true)} style={{background:"rgba(255,255,255,0.15)",border:"1px solid rgba(255,255,255,0.25)",borderRadius:9,padding:"7px 9px",cursor:"pointer",fontSize:15}}>⚙️</button>
         </div>
       </div>
 
